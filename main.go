@@ -7,8 +7,12 @@ import (
 	"os"
 	"time"
 
+	"github.com/enescakir/emoji"
 	_ "github.com/mattn/go-sqlite3"
 )
+
+// Version will be set during build time
+var Version = "dev"
 
 type Mood struct {
 	ID        int
@@ -17,6 +21,13 @@ type Mood struct {
 }
 
 var moods = []string{"happy", "sad", "neutral", "angry", "excited"}
+var moodsEmoji = map[string]emoji.Emoji{
+	"happy":   emoji.SmilingFace,
+	"sad":     emoji.PensiveFace,
+	"neutral": emoji.NeutralFace,
+	"angry":   emoji.AngryFace,
+	"excited": emoji.StarStruck,
+}
 
 const DB_PATH = "mood.db"
 
@@ -45,8 +56,9 @@ func main() {
 	defer DB.Close()
 
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: cli_playground <command> [arguments]")
+		fmt.Println("Usage: mood-tracker <command> [arguments]")
 		fmt.Println("Commands: record <mood>, timeline")
+		fmt.Printf("\nProudly made in %v \nversion: %s\n", emoji.FlagForIran, Version)
 		return
 	}
 
@@ -99,5 +111,7 @@ func showTimeline(db *sql.DB) {
 		}
 		user_moods = append(user_moods, mood)
 	}
-	fmt.Println(user_moods)
+	for _, m := range user_moods {
+		fmt.Println(moodsEmoji[m.Mood])
+	}
 }
